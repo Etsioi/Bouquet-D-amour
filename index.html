@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bouquet d'amour</title>
+  <link rel="icon" href="/assets/icon/main-icon.png">
+
+  <style>
+    :root {
+      --ink: #6d5d57;
+      --pink: #d75b8e;
+      --wine: #9a0034;
+      --line: #eadfd8;
+      --shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+
+    body {
+      position: relative;
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at 50% 0%, #fff9fb 0, #f5ece3 55%, #eaded3 100%);
+      font-family: Georgia, "Times New Roman", serif;
+      color: var(--ink);
+    }
+
+    img {
+      max-width: 100%;
+    }
+
+    .screen {
+      display: none;
+      min-height: 100vh;
+      padding: 24px clamp(16px, 4vw, 54px);
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    .wrap {
+      max-width: 1220px;
+      margin: 0 auto;
+    }
+
+    .screen,
+    .wrap,
+    .card,
+    .layout,
+    .choose-layout,
+    .previewBox {
+      max-width: 100%;
+      min-width: 0;
+    }
+
+    .top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .brand {
+      margin: 0;
+      color: var(--wine);
+      font-size: clamp(2.1rem, 5vw, 4.2rem);
+      font-weight: 400;
+      line-height: 1;
+    }
+
+    .sub {
+      margin: 0.65rem 0 0;
+      color: #927f76;
+      font-size: 1rem;
+    }
+
+    .small-note {
+      max-width: 760px;
+      margin-top: 10px;
+      color: #9a8176;
+      font: 500 0.9rem system-ui, sans-serif;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 0;
+      border-radius: 999px;
+      padding: 14px 26px;
+      background: var(--pink);
+      color: white;
+      box-shadow: 0 12px 26px rgba(215, 91, 142, 0.28);
+      cursor: pointer;
+      font: 700 1rem system-ui, "Segoe UI", sans-serif;
+      text-decoration: none;
+      white-space: nowrap;
+      transition: 0.2s;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 32px rgba(215, 91, 142, 0.34);
+    }
+
+    .btn.secondary {
+      background: #b79b8d;
+    }
+
+    .btn.ghost {
+      border: 1px solid #f0c8d7;
+      background: white;
+      color: var(--pink);
+      box-shadow: none;
+    }
+
+    .btn:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .actions {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .card {
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      border-radius: 30px;
+      padding: 26px;
+      background: rgba(255, 250, 246, 0.76);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
+    }
+
+    /* Page 1 : choix des fleurs */
+    .choose-layout {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    .flower-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px 24px;
+      align-items: center;
+    }
+
+    .flower-choice {
+      position: relative;
+      display: grid;
+      place-items: center;
+      height: 135px;
+      border: 0;
+      border-radius: 24px;
+      padding: 6px;
+      background: transparent;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .flower-choice:hover {
+      transform: translateY(-5px) scale(1.03);
+    }
+
+    .flower-choice.selected {
+      background: rgba(255, 192, 218, 0.22);
+      box-shadow: inset 0 0 0 2px rgba(215, 91, 142, 0.3);
+    }
+
+    .flower-choice img {
+      max-width: 118px;
+      max-height: 118px;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 8px rgba(80, 55, 40, 0.13));
+    }
+
+    .badge {
+      position: absolute;
+      top: 7px;
+      right: 8px;
+      display: none;
+      place-items: center;
+      min-width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      background: var(--pink);
+      color: white;
+      font: 700 13px system-ui, sans-serif;
+    }
+
+    .selected .badge {
+      display: grid;
+    }
+
+    /* Bouquet */
+    .layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      align-items: center;
+    }
+
+    .bouquet-stage {
+      position: relative;
+      width: min(430px, 90vw);
+      height: 560px;
+      margin: 0 auto;
+      overflow: visible;
+      filter: drop-shadow(0 18px 24px rgba(90, 60, 45, 0.14));
+    }
+
+    .paper-layer {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      width: 90%;
+      transform: translateX(-50%);
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .paper-layer img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .paper-front {
+      z-index: 25;
+      opacity: 0.18;
+      mix-blend-mode: multiply;
+    }
+
+    .flower-piece {
+      position: absolute;
+      z-index: 10;
+      transform-origin: center center;
+      cursor: pointer;
+      transition: 0.16s;
+    }
+
+    .flower-piece:hover {
+      filter: drop-shadow(0 0 12px rgba(215, 91, 142, 0.25));
+    }
+
+    .flower-piece img {
+      display: block;
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .empty-preview {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      z-index: 5;
+      padding-top: 160px;
+      color: #a38a7e;
+      font: 600 1rem system-ui, sans-serif;
+      text-align: center;
+    }
+
+    .live-stage {
+      height: 535px;
+    }
+
+    .live-stage .flower-piece:hover {
+      filter: drop-shadow(0 0 12px rgba(215, 91, 142, 0.35));
+    }
+
+    /* Choix du papier */
+    .option-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .option {
+      border: 2px solid transparent;
+      border-radius: 22px;
+      padding: 14px;
+      background: #fffaf6;
+      box-shadow: 0 8px 20px rgba(120, 80, 60, 0.08);
+      cursor: pointer;
+      text-align: center;
+    }
+
+    .option.active {
+      border-color: var(--pink);
+      background: #fff1f6;
+    }
+
+    .option img {
+      max-width: 100%;
+      height: 120px;
+      object-fit: contain;
+    }
+
+    .hint {
+      color: #927f76;
+      font-family: system-ui, "Segoe UI", sans-serif;
+    }
+
+    /* Lettre */
+    .note-shell {
+      position: relative;
+      max-width: 680px;
+      margin: 18px auto;
+    }
+
+    .note-deco {
+      position: absolute;
+      width: 105px;
+      opacity: 0.34;
+      pointer-events: none;
+    }
+
+    .note-deco img {
+      width: 100%;
+      height: auto;
+    }
+
+    .deco1 {
+      left: -54px;
+      top: -48px;
+    }
+
+    .deco2 {
+      right: -52px;
+      top: 28px;
+    }
+
+    .deco3 {
+      left: -42px;
+      bottom: -46px;
+    }
+
+    .deco4 {
+      right: -40px;
+      bottom: -44px;
+    }
+
+    .love-note {
+      position: relative;
+      width: 100%;
+      min-height: 330px;
+      border-radius: 14px;
+      padding: 36px 40px 36px 56px;
+      overflow: hidden;
+      background: #f4eee8;
+      box-shadow: var(--shadow);
+    }
+
+    .love-note::before {
+      content: "";
+      position: absolute;
+      left: 24px;
+      top: 0;
+      bottom: 0;
+      width: 4px;
+      border-radius: 999px;
+      background: #f472b6;
+      opacity: 0.8;
+    }
+
+    .love-note::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      background-image: linear-gradient(to bottom, transparent 41px, var(--line) 42px);
+      background-size: 100% 43px;
+      opacity: 0.95;
+      pointer-events: none;
+    }
+
+    textarea.note-input {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      min-height: 240px;
+      height: auto;
+      max-height: none;
+      border: 0;
+      padding: 0;
+      overflow: hidden;
+      resize: none;
+      outline: none;
+      background: transparent;
+      color: rgba(85, 68, 63, 0.72);
+      font: italic clamp(1.35rem, 2.5vw, 1.9rem) "Brush Script MT", "Segoe Script", cursive;
+      line-height: 1.72;
+      scrollbar-width: none;
+    }
+
+    textarea.note-input::-webkit-scrollbar {
+      display: none;
+    }
+
+    .note-preview {
+      position: relative;
+      z-index: 2;
+      color: rgba(85, 68, 63, 0.72);
+      font: italic clamp(1.35rem, 2.5vw, 1.9rem) "Brush Script MT", "Segoe Script", cursive;
+      line-height: 1.72;
+      white-space: pre-wrap;
+    }
+
+    .send-row {
+      margin-top: 26px;
+      text-align: center;
+    }
+
+    .big-send {
+      min-width: min(310px, 90vw);
+      padding: 17px 34px;
+      font-size: 1.18rem;
+    }
+
+    .linkbox {
+      display: none;
+      margin-top: 18px;
+      border: 1px dashed #d7adbe;
+      border-radius: 18px;
+      padding: 14px;
+      background: white;
+      font-family: system-ui, sans-serif;
+      font-size: 0.92rem;
+      word-break: break-all;
+    }
+
+    .status {
+      min-height: 24px;
+      margin-top: 10px;
+      color: #9a3f6b;
+      font: 700 1rem system-ui, sans-serif;
+    }
+
+    /* Responsive tablette */
+    @media (max-width: 980px) {
+      .choose-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .top {
+        display: block;
+      }
+
+      .top .btn {
+        margin-top: 16px;
+      }
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .previewBox {
+        order: -1;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .flower-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    /* Responsive téléphone */
+    @media (max-width: 700px) {
+      html,
+      body {
+        overflow-x: hidden;
+      }
+
+      .screen {
+        width: 100%;
+        max-width: 100vw;
+        padding: 18px 12px;
+        overflow-x: hidden;
+      }
+
+      .wrap,
+      .layout,
+      .choose-layout {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+
+      .card {
+        width: 100%;
+        max-width: 100%;
+        border-radius: 24px;
+        padding: 18px;
+        overflow: hidden;
+      }
+
+      .previewBox {
+        overflow: hidden;
+      }
+
+      .top {
+        max-width: 100%;
+        overflow: hidden;
+      }
+
+      .brand {
+        font-size: clamp(2rem, 12vw, 3.15rem);
+      }
+
+      .sub,
+      .small-note {
+        font-size: 0.92rem;
+      }
+
+      .actions {
+        justify-content: center;
+      }
+
+      .btn {
+        width: 100%;
+        padding: 13px 20px;
+      }
+
+      .flower-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+      }
+
+      .flower-choice {
+        height: 112px;
+        border-radius: 20px;
+      }
+
+      .flower-choice img {
+        max-width: 96px;
+        max-height: 96px;
+      }
+
+      .badge {
+        top: 5px;
+        right: 5px;
+        min-width: 25px;
+        height: 25px;
+        font-size: 12px;
+      }
+
+      .bouquet-stage {
+        width: min(355px, 94vw);
+        max-width: 100%;
+        height: 470px;
+        overflow: visible;
+      }
+
+      .option-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+
+      .option img {
+        height: 95px;
+      }
+
+      .note-shell {
+        max-width: 100%;
+        margin: 14px auto;
+      }
+
+      .note-deco {
+        display: none;
+      }
+
+      .love-note {
+        min-height: 300px;
+        border-radius: 14px;
+        padding: 30px 22px 30px 46px;
+      }
+
+      .love-note::before {
+        left: 18px;
+      }
+
+      textarea.note-input {
+        min-height: 220px;
+        font-size: clamp(1.25rem, 7vw, 1.7rem);
+        line-height: 1.65;
+      }
+
+      .note-preview {
+        font-size: clamp(1.25rem, 7vw, 1.7rem);
+        line-height: 1.65;
+      }
+    }
+
+    @media (max-width: 500px) {
+      .flower-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 420px) {
+      .screen {
+        padding-left: 10px;
+        padding-right: 10px;
+      }
+
+      .card {
+        padding-left: 14px;
+        padding-right: 14px;
+      }
+
+      .bouquet-stage {
+        width: min(330px, 96vw);
+        height: 440px;
+      }
+
+      .love-note {
+        min-height: 280px;
+        padding: 28px 18px 28px 42px;
+      }
+
+      textarea.note-input {
+        min-height: 205px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <section id="choose" class="screen active">
+    <div class="wrap">
+      <div class="top">
+        <div>
+          <h1 id="chooseTitle" class="brand">Choose Your Flowers (0/8)</h1>
+        </div>
+
+        <button id="toWrap" class="btn" disabled>Choisir le papier</button>
+      </div>
+
+      <div class="choose-layout">
+        <div class="card">
+          <div id="flowerGrid" class="flower-grid"></div>
+        </div>
+
+        <div class="card previewBox">
+          <div id="liveBouquet" class="bouquet-stage live-stage"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="wrapPage" class="screen">
+    <div class="wrap layout">
+      <div class="card">
+        <h1 class="brand">Choisis le papier</h1>
+
+        <div id="wrapOptions" class="option-grid"></div>
+
+        <div class="actions" style="margin-top: 24px;">
+          <button class="btn ghost" data-go="choose">Retour</button>
+          <button class="btn" data-go="messagePage">Écrire le mot</button>
+        </div>
+      </div>
+
+      <div class="card previewBox">
+        <div id="preview1" class="bouquet-stage"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="messagePage" class="screen">
+    <div class="wrap">
+      <div class="top">
+        <div>
+          <h1 class="brand">Ton petit mot</h1>
+        </div>
+
+        <div class="actions">
+          <button class="btn ghost" data-go="wrapPage">Retour</button>
+          <button id="toFinal" class="btn">Aperçu final</button>
+        </div>
+      </div>
+
+      <div class="note-shell">
+        <div id="d1" class="note-deco deco1"></div>
+        <div id="d2" class="note-deco deco2"></div>
+        <div id="d3" class="note-deco deco3"></div>
+        <div id="d4" class="note-deco deco4"></div>
+
+        <div class="love-note">
+          <textarea id="msg" class="note-input" placeholder="To My Beloved,
+
+Every petal carries a piece of my heart...
+
+Forever Yours,"></textarea>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="finalPage" class="screen">
+    <div class="wrap layout">
+      <div class="card">
+        <h1 class="brand">Aperçu final</h1>
+
+        <div class="note-shell" style="margin-top: 18px;">
+          <div class="love-note" style="min-height: 285px;">
+            <div id="finalMsg" class="note-preview"></div>
+          </div>
+        </div>
+
+        <div class="send-row">
+          <button id="makeLink" class="btn big-send">Envoyez avec amour 💌</button>
+          <div id="status" class="status"></div>
+          <div id="linkBox" class="linkbox"></div>
+
+          <div class="actions" style="justify-content: center; margin-top: 14px;">
+            <button id="copyLink" class="btn secondary">Copier le lien</button>
+            <button class="btn ghost" data-go="messagePage">Modifier</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div id="previewFinal" class="bouquet-stage"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="receive" class="screen">
+    <div class="wrap layout">
+      <div class="card">
+        <div id="receiveBouquet" class="bouquet-stage"></div>
+      </div>
+
+      <div class="card">
+        <h1 class="brand">Un bouquet pour toi</h1>
+
+        <div class="note-shell">
+          <div class="love-note">
+            <div id="receiveMsg" class="note-preview"></div>
+          </div>
+        </div>
+
+        <p style="text-align: center;">
+          <a class="btn ghost" href="./">Créer un autre bouquet</a>
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    const MAX = 8;
+
+    const HEADS = {
+      anemone: "assets/flowers/heads/anemone-BfSabcOV.png",
+      carnation: "assets/flowers/heads/carnation-DgRdoasf.png",
+      dahlia: "assets/flowers/heads/dahlia-CEQS8lo9.png",
+      daisy: "assets/flowers/heads/daisy-CIsN03Z9.png",
+      lily: "assets/flowers/heads/lily-Dh3Le3p1.png",
+      orchid: "assets/flowers/heads/orchid-BRu20pvw.png",
+      peony: "assets/flowers/heads/peony-DGE3yYcT.png",
+      ranunculus: "assets/flowers/heads/ranunculus-B-P75VLn.png",
+      rose: "assets/flowers/heads/rose-_oo-EG9n.png",
+      sunflower: "assets/flowers/heads/sunflower-mrQ1LDwS.png",
+      tulip: "assets/flowers/heads/tulip-Ba1gvJKd.png",
+      zinnia: "assets/flowers/heads/zinnia-DjPBlB1R.png"
+    };
+
+    const STEMS = {
+      anemone: "assets/flowers/stems/anemone-ZpMXuvWJ.png",
+      carnation: "assets/flowers/stems/carnation-q55OvJm9.png",
+      dahlia: "assets/flowers/stems/dahlia-JKLIFtkl.png",
+      daisy: "assets/flowers/stems/daisy-EFZ_o8Eo.png",
+      lily: "assets/flowers/stems/lily-dmKr-07d.png",
+      orchid: "assets/flowers/stems/orchid-1blR0C76.png",
+      peony: "assets/flowers/stems/peony-DQxrHFkv.png",
+      ranunculus: "assets/flowers/stems/ranunculus-DLwT8cAU.png",
+      rose: "assets/flowers/stems/rose-B0cvZEPj.png",
+      sunflower: "assets/flowers/stems/sunflower-BFcNrDlv.png",
+      tulip: "assets/flowers/stems/tulip-DV_MqwKN.png",
+      zinnia: "assets/flowers/stems/zinnia-DiT3DN7F.png"
+    };
+
+    const PAPERS = {
+      lavender: "assets/papers/lavender-B0g7Clgh.png",
+      pink: "assets/papers/pink-D-DTDrAJ.png",
+      green: "assets/papers/green-D_pNSKu6.png",
+      purple: "assets/papers/purple-CBhDAdli.png",
+      muddy: "assets/papers/muddy-DdY0FyfF.png",
+      emerald: "assets/papers/emerald-P-BkkMYv.png"
+    };
+
+    let state = {
+      flowers: [],
+      wrap: "lavender",
+      message: ""
+    };
+
+    const flowerDefs = [
+      ["anemone", "Anémone"],
+      ["carnation", "Œillet"],
+      ["dahlia", "Dahlia"],
+      ["daisy", "Marguerite"],
+      ["lily", "Lys"],
+      ["orchid", "Orchidée"],
+      ["peony", "Pivoine"],
+      ["rose", "Rose"],
+      ["ranunculus", "Renoncule"],
+      ["sunflower", "Tournesol"],
+      ["tulip", "Tulipe"],
+      ["zinnia", "Zinnia"]
+    ];
+
+    const paperDefs = [
+      ["lavender", "Lavender"],
+      ["pink", "Pink"],
+      ["green", "Green"],
+      ["purple", "Purple"],
+      ["muddy", "Muddy"],
+      ["emerald", "Emerald"]
+    ];
+
+    const bouquetSlots = [
+      { x: 50, liveY: 18, liveW: 144, paperY: 160, paperW: 108, z: 15, r: 0 },
+      { x: 34, liveY: 58, liveW: 140, paperY: 198, paperW: 102, z: 12, r: -10 },
+      { x: 66, liveY: 58, liveW: 140, paperY: 198, paperW: 102, z: 12, r: 10 },
+      { x: 28, liveY: 105, liveW: 134, paperY: 238, paperW: 98, z: 9, r: -13 },
+      { x: 72, liveY: 105, liveW: 134, paperY: 238, paperW: 98, z: 9, r: 13 },
+      { x: 42, liveY: 150, liveW: 136, paperY: 276, paperW: 100, z: 10, r: -6 },
+      { x: 58, liveY: 150, liveW: 136, paperY: 276, paperW: 100, z: 10, r: 6 },
+      { x: 50, liveY: 96, liveW: 138, paperY: 226, paperW: 104, z: 11, r: 0 }
+    ];
+
+    function encodeData(data) {
+      const bytes = new TextEncoder().encode(JSON.stringify(data));
+      let binary = "";
+
+      bytes.forEach(byte => {
+        binary += String.fromCharCode(byte);
+      });
+
+      return btoa(binary)
+        .replace(/\+/g, "-")
+        .replace(/\//g, "_")
+        .replace(/=+$/, "");
+    }
+
+    function decodeData(value) {
+      let base64 = value.replace(/-/g, "+").replace(/_/g, "/");
+
+      while (base64.length % 4) {
+        base64 += "=";
+      }
+
+      const binary = atob(base64);
+      const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+      return JSON.parse(new TextDecoder().decode(bytes));
+    }
+
+    function imageTag(src, alt = "") {
+      return `
+        <img
+          src="${src}"
+          alt="${alt}"
+          loading="lazy"
+          draggable="false"
+          onerror="this.style.opacity=.25; this.alt='Image indisponible';"
+        />
+      `;
+    }
+
+    function mobilePaperFlowerOffset() {
+      return window.matchMedia("(max-width: 700px)").matches ? -26 : 0;
+    }
+
+    function renderLiveBouquet(element, data = state) {
+      element.innerHTML = "";
+
+      const flowers = (data.flowers && data.flowers.length ? data.flowers : []).slice(0, 8);
+
+      if (!flowers.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-preview";
+        empty.textContent = "Ton bouquet avec tiges apparaîtra ici";
+        element.appendChild(empty);
+        return;
+      }
+
+      flowers.forEach((flower, index) => {
+        const slot = bouquetSlots[index];
+        const piece = document.createElement("div");
+
+        piece.className = "flower-piece";
+        piece.title = "Cliquer pour retirer cette fleur";
+        piece.style.cssText = `
+          left: ${slot.x}%;
+          bottom: ${slot.liveY}px;
+          width: ${slot.liveW}px;
+          transform: translateX(-50%) rotate(${slot.r}deg);
+          z-index: ${slot.z};
+        `;
+        piece.innerHTML = imageTag(STEMS[flower], flower);
+        piece.onclick = () => {
+          state.flowers.splice(index, 1);
+          updateCreatorView();
+        };
+
+        element.appendChild(piece);
+      });
+    }
+
+    function renderPaperBouquet(element, data = state) {
+      element.innerHTML = "";
+
+      const paper = document.createElement("div");
+      paper.className = "paper-layer";
+      paper.innerHTML = imageTag(PAPERS[data.wrap] || PAPERS.lavender, "Papier bouquet");
+      element.appendChild(paper);
+
+      const flowers = (data.flowers && data.flowers.length ? data.flowers : []).slice(0, 8);
+
+      if (!flowers.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty-preview";
+        empty.textContent = "Ton bouquet apparaîtra ici";
+        element.appendChild(empty);
+        return;
+      }
+
+      const yOffset = mobilePaperFlowerOffset();
+
+      flowers.forEach((flower, index) => {
+        const slot = bouquetSlots[index];
+        const piece = document.createElement("div");
+        const paperY = Math.max(0, slot.paperY + yOffset - 15);
+
+        piece.className = "flower-piece";
+        piece.style.cssText = `
+          left: ${slot.x}%;
+          bottom: ${paperY}px;
+          width: ${slot.paperW}px;
+          transform: translateX(-50%) rotate(${slot.r}deg);
+          z-index: ${slot.z + 8};
+        `;
+        piece.innerHTML = imageTag(HEADS[flower], flower);
+
+        element.appendChild(piece);
+      });
+
+      const front = document.createElement("div");
+      front.className = "paper-layer paper-front";
+      front.innerHTML = imageTag(PAPERS[data.wrap] || PAPERS.lavender, "Papier bouquet avant");
+      element.appendChild(front);
+    }
+
+    function updateCreatorView() {
+      document.getElementById("chooseTitle").textContent = `Choose Your Flowers (${state.flowers.length}/8)`;
+      document.getElementById("toWrap").disabled = state.flowers.length === 0;
+
+      document.querySelectorAll(".flower-choice").forEach(button => {
+        const type = button.dataset.type;
+        const count = state.flowers.filter(flower => flower === type).length;
+
+        button.classList.toggle("selected", count > 0);
+        button.querySelector(".badge").textContent = count;
+      });
+
+      renderLiveBouquet(document.getElementById("liveBouquet"), state);
+    }
+
+    function goToScreen(id) {
+      document.querySelectorAll(".screen").forEach(screen => {
+        screen.classList.remove("active");
+      });
+
+      document.getElementById(id).classList.add("active");
+
+      if (id === "wrapPage") {
+        renderPaperBouquet(document.getElementById("preview1"), state);
+      }
+
+      if (id === "finalPage") {
+        state.message = document.getElementById("msg").value.trim() || "To My Beloved,\n\nEvery petal carries a piece of my heart...\n\nForever Yours,";
+        document.getElementById("finalMsg").textContent = state.message;
+        renderPaperBouquet(document.getElementById("previewFinal"), state);
+      }
+    }
+
+    function autoResizeMessage() {
+      const area = document.getElementById("msg");
+
+      if (!area) {
+        return;
+      }
+
+      area.style.height = "auto";
+      area.style.height = `${area.scrollHeight}px`;
+    }
+
+    let bouquetResizeTimer;
+
+    function refreshPaperBouquetOnResize() {
+      clearTimeout(bouquetResizeTimer);
+
+      bouquetResizeTimer = setTimeout(() => {
+        if (document.getElementById("wrapPage")?.classList.contains("active")) {
+          renderPaperBouquet(document.getElementById("preview1"), state);
+        }
+
+        if (document.getElementById("finalPage")?.classList.contains("active")) {
+          renderPaperBouquet(document.getElementById("previewFinal"), state);
+        }
+
+        if (document.getElementById("receive")?.classList.contains("active")) {
+          renderPaperBouquet(document.getElementById("receiveBouquet"), state);
+        }
+      }, 80);
+    }
+
+    function initializeApp() {
+      const grid = document.getElementById("flowerGrid");
+      const wrapOptions = document.getElementById("wrapOptions");
+
+      flowerDefs.forEach(([type, label]) => {
+        const button = document.createElement("button");
+
+        button.className = "flower-choice";
+        button.dataset.type = type;
+        button.title = label;
+        button.innerHTML = `${imageTag(HEADS[type], label)}<span class="badge">0</span>`;
+        button.onclick = () => {
+          if (state.flowers.length < MAX) {
+            state.flowers.push(type);
+          } else {
+            const index = state.flowers.lastIndexOf(type);
+
+            if (index > -1) {
+              state.flowers.splice(index, 1);
+            }
+          }
+
+          updateCreatorView();
+        };
+
+        grid.appendChild(button);
+      });
+
+      [
+        ["d1", "rose"],
+        ["d2", "peony"],
+        ["d3", "tulip"],
+        ["d4", "lily"]
+      ].forEach(([id, type]) => {
+        document.getElementById(id).innerHTML = imageTag(HEADS[type], type);
+      });
+
+      paperDefs.forEach(([value, label]) => {
+        const option = document.createElement("div");
+
+        option.className = `option ${value === state.wrap ? "active" : ""}`;
+        option.innerHTML = `${imageTag(PAPERS[value], label)}<div class="hint">${label}</div>`;
+        option.onclick = () => {
+          state.wrap = value;
+
+          document.querySelectorAll(".option").forEach(item => {
+            item.classList.remove("active");
+          });
+
+          option.classList.add("active");
+          renderPaperBouquet(document.getElementById("preview1"), state);
+        };
+
+        wrapOptions.appendChild(option);
+      });
+
+      document.querySelectorAll("[data-go]").forEach(button => {
+        button.onclick = () => goToScreen(button.dataset.go);
+      });
+
+      document.getElementById("toWrap").onclick = () => goToScreen("wrapPage");
+      document.getElementById("toFinal").onclick = () => goToScreen("finalPage");
+
+      document.getElementById("makeLink").onclick = () => {
+        state.message = document.getElementById("msg").value.trim() || state.message;
+        const url = `${location.origin}${location.pathname}#b=${encodeData(state)}`;
+
+        document.getElementById("linkBox").style.display = "block";
+        document.getElementById("linkBox").textContent = url;
+        document.getElementById("status").textContent = "Lien créé 💌";
+      };
+
+      document.getElementById("copyLink").onclick = async () => {
+        const linkBox = document.getElementById("linkBox");
+        const text = linkBox.textContent || `${location.origin}${location.pathname}#b=${encodeData(state)}`;
+
+        linkBox.style.display = "block";
+        linkBox.textContent = text;
+
+        try {
+          await navigator.clipboard.writeText(text);
+          document.getElementById("status").textContent = "Lien copié !";
+        } catch (error) {
+          document.getElementById("status").textContent = "Sélectionne le lien pour le copier.";
+        }
+      };
+
+      document.addEventListener("input", event => {
+        if (event.target && event.target.id === "msg") {
+          autoResizeMessage();
+        }
+      });
+
+      window.addEventListener("resize", autoResizeMessage);
+      window.addEventListener("resize", refreshPaperBouquetOnResize);
+      window.addEventListener("load", () => {
+        autoResizeMessage();
+        refreshPaperBouquetOnResize();
+      });
+      window.addEventListener("orientationchange", () => {
+        setTimeout(() => {
+          autoResizeMessage();
+          refreshPaperBouquetOnResize();
+        }, 180);
+      });
+
+      if (location.hash.startsWith("#b=")) {
+        try {
+          state = decodeData(location.hash.slice(3));
+
+          document.querySelectorAll(".screen").forEach(screen => {
+            screen.classList.remove("active");
+          });
+
+          document.getElementById("receive").classList.add("active");
+          document.getElementById("receiveMsg").textContent = state.message || "Un bouquet rien que pour toi.";
+          renderPaperBouquet(document.getElementById("receiveBouquet"), state);
+        } catch (error) {
+          updateCreatorView();
+        }
+      } else {
+        updateCreatorView();
+      }
+
+      autoResizeMessage();
+    }
+
+    initializeApp();
+  </script>
+</body>
+</html>
